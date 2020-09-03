@@ -29,14 +29,16 @@ end
 
 local function animate(tween, dt)
     if Clock.time > tween.time + tween.duration then
+        for key, value in pairs(tween.target) do
+            tween.table[key] = value
+        end
         if tween.calback then tween.calback() end
         return true
     elseif Clock.time >= tween.time then
         tween.elapsed = tween.elapsed + dt
         local percentage = math.min(tween.elapsed / tween.duration, 1)
         for key, value in pairs(tween.target) do
-            tween.table[key] = tween.table[key] + ((value - tween.table[key]) * percentage)
-            print(key, tween.table[key], percentage)
+            tween.table[key] = tween.start[key] + ((value - tween.start[key]) * percentage)
         end
     end
     return false
@@ -79,8 +81,12 @@ function Clock.tween(start_time, duration, t, target, calback)
         table = t,
         target = target,
         calback = calback,
-        class = 'tween'
+        class = 'tween',
+        start = {},
     }
+    for key, _ in pairs(new_o.target) do
+        new_o.start[key] = new_o.table[key]
+    end
     table.insert(Clock.animations, new_o)
 end
 
