@@ -18,7 +18,8 @@ this is specified in the tool's `README.md` file.
 ### Interpolation
 
 A simple interpolation library that can be used to interpolate between two values.
-It has 2 modules that can be used independently: `Interpolation` and `Easing`.
+It has 2 modules that can be used independently: `Lerp` and `Easing`.
+This pakage do not depend on Löve 2D, so it can be used in any Lua project.
 
 ### Simple Keyboard
 
