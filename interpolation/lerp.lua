@@ -4,6 +4,9 @@ local ease = require("ease")
 -- A module for creating lerps
 -- This module exports: the ease functions module under the name "easeFunctions"
 local Lerp = {
+	_LICENSE = "MIT License - Copyright (c) 2024",
+	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
+	_VERSION = "v1.0.0",
 	easeFunction = ease,
 }
 

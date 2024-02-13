@@ -210,4 +210,7 @@ return {
 	easeInBounce = easeInBounce,
 	easeOutBounce = easeOutBounce,
 	easeInOutBounce = easeInOutBounce,
+	_LICENSE = "MIT License - Copyright (c) 2024",
+	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
+	_VERSION = "v1.0.0",
 }
