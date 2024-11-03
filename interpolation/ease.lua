@@ -1,15 +1,23 @@
+---@param percent number
+---@return number
 local function linear(percent)
 	return percent
 end
 
+---@param percent number
+---@return number
 local function quadraticIn(percent)
 	return percent * percent
 end
 
+---@param percent number
+---@return number
 local function quadraticOut(percent)
 	return -(percent - 1) * (percent - 1) + 1
 end
 
+---@param percent number
+---@return number
 local function quadraticInOut(percent)
 	if percent < 0.5 then
 		return 2 * percent * percent
@@ -18,14 +26,20 @@ local function quadraticInOut(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function cubicIn(percent)
 	return percent * percent * percent
 end
 
+---@param percent number
+---@return number
 local function cubicOut(percent)
 	return (percent - 1) * (percent - 1) * (percent - 1) + 1
 end
 
+---@param percent number
+---@return number
 local function cubicInOut(percent)
 	if percent < 0.5 then
 		return 4 * percent * percent * percent
@@ -34,14 +48,20 @@ local function cubicInOut(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function quarticIn(percent)
 	return percent * percent * percent * percent
 end
 
+---@param percent number
+---@return number
 local function quarticOut(percent)
 	return -(percent - 1) * (percent - 1) * (percent - 1) * (percent - 1) + 1
 end
 
+---@param percent number
+---@return number
 local function quarticInOut(percent)
 	if percent < 0.5 then
 		return 8 * percent * percent * percent * percent
@@ -50,14 +70,20 @@ local function quarticInOut(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function quinticIn(percent)
 	return percent * percent * percent * percent * percent
 end
 
+---@param percent number
+---@return number
 local function quinticOut(percent)
 	return (percent - 1) * (percent - 1) * (percent - 1) * (percent - 1) * (percent - 1) + 1
 end
 
+---@param percent number
+---@return number
 local function quinticInOut(percent)
 	if percent < 0.5 then
 		return 16 * percent * percent * percent * percent * percent
@@ -66,26 +92,38 @@ local function quinticInOut(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function sineIn(percent)
 	return math.sin((percent - 1) * math.pi / 2) + 1
 end
 
+---@param percent number
+---@return number
 local function sineOut(percent)
 	return math.sin(percent * (math.pi / 2))
 end
 
+---@param percent number
+---@return number
 local function sineInOut(percent)
 	return -0.5 * (math.cos(math.pi * percent) - 1)
 end
 
+---@param percent number
+---@return number
 local function circularIn(percent)
 	return 1 - math.sqrt(1 - percent * percent)
 end
 
+---@param percent number
+---@return number
 local function circularOut(percent)
 	return math.sqrt(1 - (percent - 1) * (percent - 1))
 end
 
+---@param percent number
+---@return number
 local function circularInOut(percent)
 	if percent < 0.5 then
 		return 0.5 * (1 - math.sqrt(1 - 4 * percent * percent))
@@ -94,14 +132,20 @@ local function circularInOut(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function exponentialIn(percent)
 	return math.pow(2, 10 * percent - 10)
 end
 
+---@param percent number
+---@return number
 local function exponentialOut(percent)
 	return 1 - math.pow(2, -10 * percent)
 end
 
+---@param percent number
+---@return number
 local function exponentialInOut(percent)
 	if percent < 0.5 then
 		return 0.5 * math.pow(2, 20 * percent - 10)
@@ -110,18 +154,24 @@ local function exponentialInOut(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function easeInBack(percent)
 	local c1 = 1.70158
 	local c2 = c1 + 1
 	return c2 * percent * percent * percent - c1 * percent * percent
 end
 
+---@param percent number
+---@return number
 local function easeOutBack(percent)
 	local c1 = 1.70158
 	local c2 = c1 + 1
 	return 1 + c2 * (percent - 1) * (percent - 1) * (percent - 1) + c1 * (percent - 1) * (percent - 1)
 end
 
+---@param percent number
+---@return number
 local function easeInOutBack(percent)
 	local c1 = 1.70158
 	local c2 = c1 * 1.525
@@ -132,16 +182,22 @@ local function easeInOutBack(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function easeInElastic(percent)
 	local c = (2 * math.pi) / 3
 	return -math.pow(2, 10 * percent - 10) * math.sin((percent * 10 - 10.75) * c)
 end
 
+---@param percent number
+---@return number
 local function easeOutElastic(percent)
 	local c = (2 * math.pi) / 3
 	return math.pow(2, -10 * percent) * math.sin((percent * 10 - 0.75) * c) + 1
 end
 
+---@param percent number
+---@return number
 local function easeInOutElastic(percent)
 	local c = (2 * math.pi) / 4.5
 	if percent < 0.5 then
@@ -151,6 +207,8 @@ local function easeInOutElastic(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function easeOutBounce(percent)
 	if percent < 1 / 2.75 then
 		return 7.5625 * percent * percent
@@ -166,10 +224,14 @@ local function easeOutBounce(percent)
 	end
 end
 
+---@param percent number
+---@return number
 local function easeInBounce(percent)
 	return 1 - easeOutBounce(1 - percent)
 end
 
+---@param percent number
+---@return number
 local function easeInOutBounce(percent)
 	if percent < 0.5 then
 		return 0.5 * easeInBounce(percent * 2)
@@ -212,5 +274,5 @@ return {
 	easeInOutBounce = easeInOutBounce,
 	_LICENSE = "MIT License - Copyright (c) 2024",
 	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
-	_VERSION = "v1.0.0",
+	_VERSION = "v1.0.1",
 }
