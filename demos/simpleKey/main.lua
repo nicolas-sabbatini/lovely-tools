@@ -1,9 +1,9 @@
 local font, time, color
 
 -- Load the library.
-local simpleKeyboard = require("simple_keyboard")
+local simpleKeyboard = require("../../simple_keyboard")
 -- Create the instance.
-local key = simpleKeyboard.createInstance({ "up", "down", "left", "right" })
+local instance = simpleKeyboard.createInstance({ "up", "down", "left", "right" })
 
 function love.load()
 	font = love.graphics.newFont(50)
@@ -15,16 +15,16 @@ end
 -- Change the text color based on the key state.
 local function colorF(k)
 	-- If the ket is not bound, return a black color.
-	if key:isDown(k) == nil then
+	if instance:isDown(k) == nil then
 		return { 0, 0, 0 }
 	-- If the key is down, return a green color.
-	elseif key:isDown(k) then
+	elseif instance:isDown(k) then
 		return { 0, 1, 0 }
 	-- If the key was just pressed, return a blue color.
-	elseif key:justPressed(k) then
+	elseif instance:justPressed(k) then
 		return { 0, 0, 1 }
 	-- If the key was just released, return a white color.
-	elseif key:justReleased(k) then
+	elseif instance:justReleased(k) then
 		return { 1, 1, 1 }
 	-- Else return a red color.
 	else
@@ -34,15 +34,15 @@ end
 
 function love.update(dt)
 	-- Update the input.
-	key:updateInput()
+	instance:updateInput()
 
 	-- unbind and bind the space key.
 	time = time - dt
 	if time < 0 then
-		if key:isDown("space") ~= nil then
-			key:keyUnbind("space")
+		if instance:isDown("space") ~= nil then
+			instance:keyUnbind("space")
 		else
-			key:keyBind("space")
+			instance:keyBind("space")
 		end
 		time = 1
 	end
