@@ -181,7 +181,7 @@ local Letterbox = {
 ---@overload fun(upscale: letterbox.Upscale.Normal, size: letterbox.Rectangle, name?: string): letterbox.Rig.Normal
 ---@overload fun(upscale: letterbox.Upscale.PixelPerfect, size: letterbox.Rectangle, name?: string): letterbox.Rig.PixelPerfect
 ---@overload fun(upscale: letterbox.Upscale.Constant, size: letterbox.Rectangle, name?: string): letterbox.Rig.Constant
-function L.newLetterbox(upscale, size, name)
+function Letterbox.newLetterbox(upscale, size, name)
 	local newRig = {
 		upscale = upscale,
 		size = size,
