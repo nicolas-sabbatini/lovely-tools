@@ -15,9 +15,10 @@ in my game dev journey. I hope you find something useful here. Enjoy! ♥
 
 #### About
 
-A simple keyboard library that can be used to check if a key is pressed,
-released or held down. The library doesn't use the `love.keypressed` and
-`love.keyreleased` callbacks, so you can have control over the input.
+A simple keyboard library for the Löve 2D game engine that can be used to check
+the state of a key (just pressed, just released or held down). The library
+doesn't use the `love.keypressed` and `love.keyreleased` callbacks, so you can
+have control over the input.
 
 - Version: 3.0.1
 - Status: finish
@@ -31,7 +32,7 @@ planed are, bug fixes or Love 2D updates
 
 #### About
 
-A simple camera-resolution solution to use in your 2d games
+A simple resolution aware camera system for the Löve 2D game engine.
 
 - Version: 0.1.0
 - Status: development
@@ -41,6 +42,32 @@ A simple camera-resolution solution to use in your 2d games
 - [] Camera functionality
 - [] Post processing
 - [] Calculated rig upscaling
+
+### Tape
+
+#### About
+
+A powerful and simple logger for the Löve 2D game engine.
+
+- Version: 1.0.0
+- Status: MVP done
+
+#### Roadmap
+
+- [] File rotation
+
+### State Manager
+
+#### About
+
+A simple state manager for games.
+
+- Version: 0.1.0
+- Status: MVP done
+
+#### Roadmap
+
+- [] Add function priority
 
 ## Documentation
 
