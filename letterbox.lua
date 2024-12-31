@@ -54,6 +54,7 @@ end
 ---@field package renderTarget love.Canvas
 ---@field package offset {x: number, y: number}
 ---@field package scale {x: number, y: number}
+---@field visible boolean true by default
 ---@field name string
 ---@field draw fun(self: letterbox.Rig) draws the current and child rigs on the screen
 ---@field drawInsideRig fun(self: letterbox.Rig) start drawing inside the rig, the next draw call will modify the internal canvas of the rig (after all wanted changes you mus call `stopDrawInsideRig`)
@@ -63,13 +64,19 @@ end
 
 ---@param self letterbox.Rig
 local function draw(self)
+	if not self.visible then
+		return
+	end
+	local current_render_target = love.graphics.getCanvas()
+	love.graphics.setCanvas(self.renderTarget)
+	for _, child in ipairs(self.childerns) do
+		child:draw()
+	end
+	love.graphics.setCanvas(current_render_target)
 	love.graphics.push()
 	love.graphics.translate(self.offset.x, self.offset.y)
 	love.graphics.scale(self.scale.x, self.scale.y)
 	love.graphics.draw(self.renderTarget)
-	for _, child in ipairs(self.childerns) do
-		child:draw()
-	end
 	love.graphics.pop()
 end
 
@@ -92,16 +99,12 @@ end
 
 ---@param self letterbox.Rig
 ---@param childrenName string
+---@return letterbox.Rig | nil
 local function removeChildren(self, childrenName)
-	local target = nil
 	for k, v in pairs(self.childerns) do
 		if v.name == childrenName then
-			target = k
-			break
+			return table.remove(self.childerns, k)
 		end
-	end
-	if target then
-		table.remove(self.childerns, target)
 	end
 end
 
@@ -195,6 +198,7 @@ function Letterbox.newLetterbox(upscale, size, name)
 		stopDrawInsideRig = stopDrawInsideRig,
 		addChildren = addChildren,
 		removeChildren = removeChildren,
+		visible = true,
 	}
 
 	if upscale.type == "normal" then

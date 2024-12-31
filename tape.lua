@@ -141,7 +141,6 @@ end
 ---```
 ---@param label string The label to keep track
 ---@param level Tape.Level|nil Level of the log
----@return number amount off times the lable has been call
 function Tape.count(label, level)
 	if not lables[label] then
 		lables[label] = 0
@@ -151,7 +150,6 @@ function Tape.count(label, level)
 		local logMessage = string.format("[Count]  %s %s", label, tostring(lables[label]))
 		Tape.log(level, logMessage)
 	end
-	return lables[label]
 end
 
 local function tableToString(var, tab, pTab)

@@ -1,5 +1,5 @@
 --[[
-state_manager.lua v0.1.0
+state_manager.lua v0.2.0
 
 The MIT License (MIT)
 
@@ -24,111 +24,168 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 --]]
 
----@alias StateManager.StateNames 'onEnter'| 'onUpdate'| 'onDraw' | 'onLeave'
+local function empty() end
 
----@class StateManager.State
----@field enter fun(self: StateManager.State)
----@field update fun(self: StateManager.State, dt)
----@field draw fun(self: StateManager.State)
----@field leave fun(self: StateManager.State)
----@field bind fun(self: StateManager.State, state: StateManager.StateNames, fun: fun())
----@field private onEnter fun()[]
----@field private onUpdate fun()[]
----@field private onDraw fun()[]
----@field private onLeave fun()[]
+---@class love.State
+---@field update fun(dt)? Update function called when the state is running
+---@field draw fun()? Draw function called when the state is running
+---@field enter fun(...)? Function called when the state enters on the stack
+---@field exit fun()? Function called when the state exit the stack
+---@field pausedUpdate fun(dt)? Update function called when the state is paused
+---@field pausedDraw fun()? Draw function called when the state is paused
 
-local function enter(self)
-	for _, fun in pairs(self.onEnter) do
-		fun()
-	end
-end
+---@type love.State[]
+local executingStates = {}
+---@type love.State[]
+local posibleStates = {}
+---@type number
+local currentState = 0
 
-local function update(self, dt)
-	for _, fun in pairs(self.onUpdate) do
-		fun(dt)
-	end
-end
+love.states = {
+	_LICENSE = "MIT License - Copyright (c) 2024",
+	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
+	_VERSION = "v0.2.0",
+}
 
-local function draw(self)
-	for _, fun in pairs(self.onDraw) do
-		fun()
-	end
-end
-
-local function leave(self)
-	for _, fun in pairs(self.onLeave) do
-		fun()
-	end
-end
-
-local function bind(self, state, fun)
-	table.insert(self[state], fun)
-end
-
----@param onEnter fun()[] | nil
----@param onUpdate fun()[] | nil
----@param onDraw fun()[] | nil
----@param onLeave fun()[] | nil
----@return StateManager.State
-local function new_state(onEnter, onUpdate, onDraw, onLeave)
-	return {
-		onEnter = onEnter or {},
-		onUpdate = onUpdate or {},
-		onDraw = onDraw or {},
-		onLeave = onLeave or {},
-		bind = bind,
-		enter = enter,
-		update = update,
-		draw = draw,
-		leave = leave,
+---Adds a new state in the state manager
+---@param stateName string
+---@param state love.State
+function love.states.addState(stateName, state)
+	posibleStates[stateName] = {
+		update = state.update or empty,
+		draw = state.draw or empty,
+		enter = state.enter or empty,
+		exit = state.exit or empty,
+		pausedUpdate = state.pausedUpdate or empty,
+		pausedDraw = state.pausedDraw or empty,
 	}
 end
 
-local state_manager = {
-	states = {
-		empty = new_state(),
-	},
-	current_state = "empty",
-	_LICENSE = "MIT License - Copyright (c) 2024",
-	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
-	_VERSION = "v0.1.0",
-}
-
----Creates a new state in the state manager
----@param name string
----@param onEnter fun()[] | nil
----@param onUpdate fun()[] | nil
----@param onDraw fun()[] | nil
----@param onLeave fun()[] | nil
-function state_manager:add_state(name, onEnter, onUpdate, onDraw, onLeave)
-	self.states[name] = new_state(onEnter, onUpdate, onDraw, onLeave)
+---Push the specified state into the stack and pauses the
+---previews running state, this function is not
+---going to have any effect until the start of the next frame.
+---You can also use `love.event.push("pushState", newState, ...)`
+---to have the same effect
+---@param newState string
+---@param ... unknown
+function love.states.pushState(newState, ...)
+	love.event.push("pushState", newState, ...)
 end
 
----Add a function to the state
----@param name string
----@param state StateManager.StateNames
----@param fun fun()
-function state_manager:bind(name, state, fun)
-	self.states[name]:bind(state, fun)
+---Removes the selected amount of states from the stack, this
+---function is not going to have any effect until the start
+---of the next frame.
+---You can also use `love.event.push("popState", amount)`
+---to have the same effect
+function love.states.popState(amount)
+	love.event.push("popState", amount)
 end
 
----Change the current state and execute the required function
----@param name string
-function state_manager:set_state(name)
-	self.states[self.current_state]:leave()
-	self.current_state = name
-	self.states[name]:enter()
+---Changes the current running state for the specified state,
+---function is not going to have any effect until the start
+---of the next frame.
+---You can also use `love.event.push("swichState", newState, ...)`
+---to have the same effect
+---@param newState string
+---@param ... unknown
+function love.states.swichState(newState, ...)
+	love.event.push("swichState", newState, ...)
 end
 
----Execute the update functions of the current state
----@param dt number
-function state_manager:update(dt)
-	self.states[self.current_state]:update(dt)
+---Gets the amount of states currently on the stack
+---@return integer
+function love.states.getStackSize()
+	return #executingStates
 end
 
----Execute the update functions of the current state
-function state_manager:draw()
-	self.states[self.current_state]:draw()
+function love.handlers.pushState(stateName, ...)
+	assert(stateName, "You must pass a name to the function")
+	assert(posibleStates[stateName], "The state '" .. stateName .. "' do not exist")
+	table.insert(executingStates, posibleStates[stateName])
+	currentState = #executingStates
+	executingStates[currentState].enter(...)
 end
 
-return state_manager
+function love.handlers.popState(amount)
+	local til = math.max(currentState - amount, 0)
+	for i = currentState, 0, -1 do
+		local exitState = table.remove(executingStates, i)
+		exitState.exit()
+		if i == til then
+			break
+		end
+	end
+end
+
+function love.handlers.swichState(stateName, ...)
+	assert(posibleStates[stateName], "The state " .. stateName .. " do not exist")
+	local exitState = table.remove(executingStates, currentState)
+	if exitState then
+		exitState.exit()
+	end
+	table.insert(executingStates, posibleStates[stateName])
+	currentState = #executingStates
+	executingStates[currentState].enter(...)
+end
+
+function love.run()
+	-- Check requirements
+	assert(love.graphics, "love.graphics is required to use this module")
+	assert(love.event, "love.event is required to use this module")
+	assert(love.timer, "love.timer is required to use this module")
+	-- Set up optional requirements
+	if not love.update then
+		love.update = empty
+	end
+	if not love.draw then
+		love.draw = empty
+	end
+	if not love.quit then
+		love.quit = empty
+	end
+	-- Load user defined stuff
+	if love.load then
+		love.load(love.arg.parseGameArguments(arg), arg)
+	end
+	-- Clear timer
+	local dt = 0
+	love.timer.step()
+	-- Main loop
+	return function()
+		-- Handle events
+		love.event.pump()
+		for name, a, b, c, d, e, f in love.event.poll() do
+			if name == "quit" then
+				if not love.quit() then
+					return a or 0
+				end
+			end
+			love.handlers[name](a, b, c, d, e, f)
+		end
+		-- Update
+		dt = love.timer.step()
+		love.update(dt)
+		-- Execute states
+		if currentState > 0 then
+			for i = 1, currentState - 1 do
+				executingStates[i].pausedUpdate(dt)
+			end
+			executingStates[currentState].update(dt)
+		end
+		-- Draw
+		love.graphics.origin()
+		love.graphics.clear(love.graphics.getBackgroundColor())
+		-- Draw states
+		if currentState > 0 then
+			for i = 1, currentState - 1 do
+				executingStates[i].pausedDraw()
+			end
+			executingStates[currentState].draw()
+		end
+		-- Draw to the screen
+		love.draw()
+		love.graphics.present()
+		-- Request next fame
+		love.timer.sleep(0.001)
+	end
+end
