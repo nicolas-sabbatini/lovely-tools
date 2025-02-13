@@ -34,14 +34,15 @@ planed are, bug fixes or Love 2D updates
 
 A simple resolution aware camera system for the Löve 2D game engine.
 
-- Version: 0.1.0
+- Version: 0.2.1
 - Status: development
 
 #### Roadmap
 
 - [] Camera functionality
-- [] Post processing
-- [] Calculated rig upscaling
+- [] Mouse position
+- [x] Post processing
+- [x] Calculated rig upscaling
 
 ### Tape
 
