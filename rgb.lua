@@ -1,5 +1,5 @@
 --[[
-rgb.lua v0.2.0
+rgb.lua v0.2.1
 
 The MIT License (MIT)
 
@@ -27,29 +27,41 @@ SOFTWARE.
 local RGB = {
 	_LICENSE = "MIT License - Copyright (c) 2024",
 	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
-	_VERSION = "v0.2.0",
+	_VERSION = "v0.2.1",
 }
 
 ---Transform a number in `0xRRGGBB` format to a table RGB with values between 0..1
----@param num number must be in `0xRRGGBB` format
+---@param num number | string `RRGGBB` number, if a string is used it must not have the `0x` prefix
 ---@return table RGB on format `{1: number, 2: number, 3: number}` each number on value between 0..1
 function RGB.exaToTable(num)
-	local num = string.format("%X", num)
-	local r = tonumber(string.sub(num, 1, 2), 16) / 0xFF
-	local g = tonumber(string.sub(num, 3, 4), 16) / 0xFF
-	local b = tonumber(string.sub(num, 5, 6), 16) / 0xFF
+	assert(type(num) == "number" or type("num") == "string", "The number must be a type `string` or `number`")
+	if type(num) == "number" then
+		num = string.format("%X", num)
+	end
+	while #num < 6 do
+		num = "0" .. num
+	end
+	local r = tonumber(string.sub(num, 1, 2) or "00", 16) / 0xFF
+	local g = tonumber(string.sub(num, 3, 4) or "00", 16) / 0xFF
+	local b = tonumber(string.sub(num, 5, 6) or "00", 16) / 0xFF
 	return { r, g, b }
 end
 
 ---Transform a number in `0xRRGGBBAA` format to a table RGBA with values between 0..1
----@param num number must be in `0xRRGGBBAA` format
+---@param num number | string `RRGGBB` number, if a string is used it must not have the `0x` prefix
 ---@return table RGBA on format `{1: number, 2: number, 3: number, 4: number}` each number on value between 0..1
 function RGB.alphaExaToTable(num)
-	local num = string.format("%X", num)
-	local r = tonumber(string.sub(num, 1, 2), 16) / 0xFF
-	local g = tonumber(string.sub(num, 3, 4), 16) / 0xFF
-	local b = tonumber(string.sub(num, 5, 6), 16) / 0xFF
-	local a = tonumber(string.sub(num, 7, 8), 16) / 0xFF
+	assert(type(num) == "number" or type("num") == "string", "The number must be a type `string` or `number`")
+	if type(num) == "number" then
+		num = string.format("%X", num)
+	end
+	while #num < 8 do
+		num = "0" .. num
+	end
+	local r = tonumber(string.sub(num, 1, 2) or "00", 16) / 0xFF
+	local g = tonumber(string.sub(num, 3, 4) or "00", 16) / 0xFF
+	local b = tonumber(string.sub(num, 5, 6) or "00", 16) / 0xFF
+	local a = tonumber(string.sub(num, 7, 8) or "00", 16) / 0xFF
 	return { r, g, b, a }
 end
 
