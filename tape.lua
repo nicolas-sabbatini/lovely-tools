@@ -1,5 +1,5 @@
 --[[
-tape.lua v1.0.0
+tape.lua v1.1.0
 
 The MIT License (MIT)
 
@@ -28,8 +28,9 @@ local logFile = "log.log"
 local logLevel = 3
 local logOutput = "all"
 
-local lables = {}
+local labels = {}
 
+--- Enumeration for log levels.
 ---@enum (key) Tape.Level
 local LogLevel = {
 	error = 1,
@@ -37,6 +38,7 @@ local LogLevel = {
 	debug = 3,
 }
 
+--- Enumeration for log output destinations.
 ---@enum (key) Tape.Output
 local LogOutput = {
 	all = function(message)
@@ -63,53 +65,49 @@ Tape = {
 	_VERSION = "v1.0.0",
 }
 
----Receives any number of arguments and records them in the output
----@param ... any
+--- Logs a message with optional arguments.
+---@param ... any Values to log.
 function Tape.record(...)
-	local logMessage = ""
-	for _, v in ipairs({ ... }) do
-		logMessage = logMessage .. tostring(v) .. "\t"
-	end
-	logMessage = logMessage .. "\n"
+	local logMessage = table.concat({ ... }, "\t") .. "\n"
 	LogOutput[logOutput](logMessage)
 end
 
----Creates a new log file and set up variables
----@param output Tape.Output | nil where to record the logs (Default `all`)
----@param path string | nil If you wish to save logs to file you mus provide a file name (This file is inside the game's save directory, default `log.log`)
----@param level Tape.Level | nil Minimum log level to be recorder (Default `debug`)
----@param mode "full"|"line"|"no"|nil Sets the buffering mode for an output file (Help `io.stdout:setvbuf`, Default `no`)
+--- Initializes the logging system.
+---@param output Tape.Output|nil Log destination (default: "all").
+---@param path string|nil File name for log storage (default: "log.log").
+---@param level Tape.Level|nil Minimum log level to record (default: "debug").
+---@param mode "full"|"line"|"no"|nil Buffering mode for output file (default: "no").
 function Tape.init(output, path, level, mode)
 	logOutput = output or "all"
 	logFile = path or "log.log"
 	logLevel = LogLevel[level] or LogLevel.debug
 	io.stdout:setvbuf(mode or "no")
+
 	if logOutput ~= "console" then
 		local pathOfFileDir = love.filesystem.getRealDirectory(logFile)
 		local pathOfSaveDir = love.filesystem.getSaveDirectory()
-		local exist = pathOfFileDir ~= nil and pathOfFileDir == pathOfSaveDir
-		if not exist then
+		if not (pathOfFileDir and pathOfFileDir == pathOfSaveDir) then
 			love.filesystem.newFile(logFile)
 		end
 	end
 end
 
----Records a new log entry
----@param level Tape.Level Level of the log
----@param message string Format string that follows the same rules as the ISO C function sprintf
----@param ... any values to format the string
+--- Logs a formatted message at a given log level.
+---@param level Tape.Level Log level.
+---@param message string Format string.
+---@param ... any Arguments for formatting.
 function Tape.log(level, message, ...)
 	if logLevel < LogLevel[level] then
 		return
 	end
 	local header = string.format("%s[%s - %s]\27[0m ", colors[level], level, os.date("%H:%M:%S"))
-	local formatMessage = string.format(message, ...)
-	Tape.record(header, formatMessage)
+	local formattedMessage = string.format(message, ...)
+	Tape.record(header, formattedMessage)
 end
 
----An assert function that saves the negative output to the log file
----@param condition boolean Result of a test condition if the condition is false halt the program
----@param message string Error message
+--- Logs an assertion failure and halts execution if the condition is false.
+---@param condition boolean Condition to assert.
+---@param message string Error message.
 function Tape.assert(condition, message)
 	if not condition then
 		local logMessage = string.format(
@@ -122,53 +120,62 @@ function Tape.assert(condition, message)
 	end
 end
 
----Clears the log file, if the chosen output is `console` it does noting
+--- Clears the log file, if the output is not "console".
 function Tape.clear()
 	if logOutput == "console" then
 		return
 	end
-	local res = love.filesystem.remove(logFile)
-	if res then
+	if love.filesystem.remove(logFile) then
 		love.filesystem.newFile(logFile)
-		Tape.log("debug", "save file deleted")
+		Tape.log("debug", "Log file cleared")
 	end
 end
 
----Records the number of times this line has been called with the given label
----```
----If you call the count function with a level that is nil or grater to the
----current 'logLevel' the label is going to count but is not going to show in the logs
----```
----@param label string The label to keep track
----@param level Tape.Level|nil Level of the log
+--- Records the number of times a label has been logged.
+---@param label string Label to track.
+---@param level Tape.Level|nil Optional log level.
 function Tape.count(label, level)
-	if not lables[label] then
-		lables[label] = 0
-	end
-	lables[label] = lables[label] + 1
+	labels[label] = (labels[label] or 0) + 1
 	if level then
-		local logMessage = string.format("[Count]  %s %s", label, tostring(lables[label]))
-		Tape.log(level, logMessage)
+		Tape.log(level, "[Count] %s %d", label, labels[label])
 	end
 end
 
-local function tableToString(var, tab, pTab)
+local function tableToString(var, indent, parentIndent)
 	if type(var) == "table" then
-		local base = "{\n\r"
+		local base = "{\n"
 		for k, v in pairs(var) do
-			base = base .. tab .. k .. " = " .. tableToString(v, tab .. "\t", tab) .. ",\n\r"
+			base = base .. indent .. k .. " = " .. tableToString(v, indent .. "\t", indent) .. ",\n"
 		end
-		return base .. pTab .. "}"
+		return base .. parentIndent .. "}"
 	end
 	return tostring(var)
 end
 
----Logs a table in a human-readable way
----```
----Warning! If you attempt to log a recursive table this function is going to crash
----```
----@param level Tape.Level The level of the log
----@param table table The table to log (`Warning! If you attempt to log a recursive table this function is going to crash`)
+--- Logs a table in a readable format.
+---@param level Tape.Level Log level.
+---@param table table Table to log.
 function Tape.table(level, table)
 	Tape.log(level, tableToString(table, "\t", ""))
+end
+
+--- Logs a debug message.
+---@param message string Format string.
+---@param ... any Arguments for formatting.
+function Tape.debug(message, ...)
+	Tape.log("debug", message, ...)
+end
+
+--- Logs an error message.
+---@param message string Format string.
+---@param ... any Arguments for formatting.
+function Tape.error(message, ...)
+	Tape.log("error", message, ...)
+end
+
+--- Logs a warning message.
+---@param message string Format string.
+---@param ... any Arguments for formatting.
+function Tape.warn(message, ...)
+	Tape.log("warn", message, ...)
 end
