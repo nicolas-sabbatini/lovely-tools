@@ -1,5 +1,5 @@
 --[[
-letterbox.lua v0.3.0
+letterbox.lua v1.0.0
 
 The MIT License (MIT)
 
@@ -53,14 +53,13 @@ local letterbox = {
 }
 
 ---Creates a new camera rig
----@overload fun(upscale: letterbox.Upscale.Normal, name?: string, renderPriority?: number): letterbox.Rig.Normal
----@overload fun(upscale: letterbox.Upscale.PixelPerfect, name?: string, renderPriority?: number): letterbox.Rig.PixelPerfect
----@overload fun(upscale: letterbox.Upscale.Constant, name?: string, renderPriority?: number): letterbox.Rig.Constant
----@overload fun(upscale: letterbox.Upscale.Base, name?: string, renderPriority?: number): letterbox.Rig
-function letterbox.newLetterbox(upscale, name, renderPriority)
+---@overload fun(upscale: letterbox.Upscale.Normal, name?: string): letterbox.Rig.Normal
+---@overload fun(upscale: letterbox.Upscale.PixelPerfect, name?: string): letterbox.Rig.PixelPerfect
+---@overload fun(upscale: letterbox.Upscale.Constant, name?: string): letterbox.Rig.Constant
+---@overload fun(upscale: letterbox.Upscale.Base, name?: string): letterbox.Rig
+function letterbox.newLetterbox(upscale, name)
 	local n = name or uuid()
-	local rp = renderPriority or 9999
-	local base = newBase(upscale, n, rp)
+	local base = newBase(upscale, n)
 	if upscale.type and upscale.type == "normal" then
 		return newNormal(base, upscale)
 	elseif upscale.type and upscale.type == "pixel-perfect" then

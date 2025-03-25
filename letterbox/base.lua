@@ -1,6 +1,9 @@
 ---@class letterbox.Upscale.Base
 ---@field size letterbox.Rectangle
 ---@field postProcessing letterbox.PostProcessing?
+---@field renderPriority number?
+---@field zoom number?
+---@field look letterbox.Vector?
 
 ---@class letterbox.Rig
 ---@field addChildren fun(self: letterbox.Rig, children: letterbox.Rig) Adds a child rig to the current rig.
@@ -13,15 +16,21 @@
 ---@field popPostProcessing fun(self: letterbox.Rig): love.Shader Removes and returns the last post-processing effect from the draw pipeline.
 ---@field pushPostProcessing fun(self: letterbox.Rig, shader: love.Shader) Adds a new post-processing effect to the end of the draw pipeline.
 ---@field removeChildren fun(self: letterbox.Rig, childName: string): letterbox.Rig? Removes a child rig by name. If the child does not exist, the function does nothing and returns `nil`.
----@field renderPriority number The render priority of this rig compared to its siblings. Higher values mean the rig is rendered later. By default, it is 9999
+---@field renderPriority number The render priority of this rig compared to its siblings. Higher values mean the rig is rendered later. By default, it is 0
 ---@field resize fun(self: letterbox.Rig, newSize: letterbox.Rectangle) Resizes the rig to match the specified `newSize`
 ---@field scale letterbox.Vector The scale of the rig.
 ---@field size letterbox.Rectangle The size of the rig.
 ---@field sortChildren fun(self: letterbox.Rig) Sorts children according to their `renderPriority`.
----@field stopDrawInsideRig fun(self: letterbox.Rig) Stops drawing inside the rig. This function should be called after `drawInsideRig`.
+---@field stopDrawInsideRig fun(self: letterbox.Rig, previus: love.Canvas?) Stops drawing inside the rig. This function should be called after `drawInsideRig`. It's sets the render target to previus.
 ---@field swapchainBack love.Canvas The back buffer of the swapchain.
 ---@field swapchainFront love.Canvas The front buffer of the swapchain.
 ---@field parentResizeCallback fun(self: letterbox.Rig, parentNewSize: letterbox.Rectangle) | nil Callback function triggered when the parent's size changes. If defined, it updates the rig's properties to adapt to the new parent size. This function may be `nil` if resizing is not applicable.
+---@field zoom number The zoom level applied to the rig.
+---@field zoomBy fun(self: letterbox.Rig, delta: number) Changes the zoom level by adding the `delta` value to its current value.
+---@field look letterbox.Vector The position where the center of the camera is located.
+---@field lookBy fun(self: letterbox.Rig, delta: letterbox.Vector) Moves the `look` position by adding the `delta` vector to its current value.
+---@field parentToRigsWorld fun(self: letterbox.Rig, px: number, py: number): {name: string, coordinates: letterbox.Vector}[] Transforms the given `coordinates` from the parent's coordinate system into the local rig coordinate system.
+---@field parentToRigsScreen fun(self: letterbox.Rig, px: number, py: number): {name: string, coordinates: letterbox.Vector}[] Transforms the given `coordinates` from the parent's screen coordinates into the local rig screen coordinates.
 
 ---@param self letterbox.Rig
 local function draw(self)
@@ -53,11 +62,15 @@ end
 local function drawInsideRig(self)
 	love.graphics.push()
 	love.graphics.setCanvas(self.swapchainBack)
+	love.graphics.scale(self.zoom, self.zoom)
+	local offsetX = ((self.size.width / 2) / self.zoom) - self.look.x
+	local offsetY = ((self.size.height / 2) / self.zoom) - self.look.y
+	love.graphics.translate(offsetX, offsetY)
 end
 
-local function stopDrawInsideRig(_)
+local function stopDrawInsideRig(_, previus)
 	love.graphics.pop()
-	love.graphics.setCanvas()
+	love.graphics.setCanvas(previus)
 end
 
 ---@param self letterbox.Rig
@@ -110,11 +123,77 @@ local function resize(self, newSize)
 	end
 end
 
+---@param self letterbox.Rig
+---@param delta letterbox.Vector
+local function lookBy(self, delta)
+	self.look.x = self.look.x + delta.x
+	self.look.y = self.look.y + delta.y
+end
+
+---@param self letterbox.Rig
+---@param delta number
+local function zoomBy(self, delta)
+	self.zoom = math.max(self.zoom + delta, 0.1)
+end
+
+---@param self letterbox.Rig
+---@param px number
+---@param py number
+---@return {name: string, coordinates: letterbox.Vector}[]
+local function parentToRigsWorld(self, px, py)
+	local x = (px - self.offset.x) / self.scale.x
+	local y = (py - self.offset.y) / self.scale.y
+	if x < 0 or x > self.size.width or y < 0 or y > self.size.height then
+		return {}
+	end
+	local localC = {
+		name = self.name,
+		coordinates = {
+			x = ((x - self.size.width / 2) / self.zoom) + self.look.x,
+			y = ((y - self.size.height / 2) / self.zoom) + self.look.y,
+		},
+	}
+	for i = #self.children, 1, -1 do
+		local cc = self.children[i]:parentToRigsWorld(x, y)
+		if #cc ~= 0 then
+			table.insert(cc, 1, localC)
+			return cc
+		end
+	end
+	return { localC }
+end
+
+---@param self letterbox.Rig
+---@param px number
+---@param py number
+---@return {name: string, coordinates: letterbox.Vector}[]
+local function parentToRigsScreen(self, px, py)
+	local x = (px - self.offset.x) / self.scale.x
+	local y = (py - self.offset.y) / self.scale.y
+	if x < 0 or x > self.size.width or y < 0 or y > self.size.height then
+		return {}
+	end
+	local localC = {
+		name = self.name,
+		coordinates = {
+			x = x,
+			y = y,
+		},
+	}
+	for i = #self.children, 1, -1 do
+		local cc = self.children[i]:parentToRigsScreen(x, y)
+		if #cc ~= 0 then
+			table.insert(cc, 1, localC)
+			return cc
+		end
+	end
+	return { localC }
+end
+
 ---@param upscale letterbox.Upscale.Base
 ---@param name string
----@param renderPriority number
 ---@return letterbox.Rig
-local function newBase(upscale, name, renderPriority)
+local function newBase(upscale, name)
 	---@type letterbox.Rig
 	local newRig = {
 		addChildren = addChildren,
@@ -127,7 +206,7 @@ local function newBase(upscale, name, renderPriority)
 		popPostProcessing = popPostProcessing,
 		pushPostProcessing = pushPostProcessing,
 		removeChildren = removeChildren,
-		renderPriority = renderPriority,
+		renderPriority = upscale.renderPriority or 0,
 		scale = { x = 1, y = 1 },
 		sortChildren = sortChildren,
 		stopDrawInsideRig = stopDrawInsideRig,
@@ -136,6 +215,12 @@ local function newBase(upscale, name, renderPriority)
 		size = upscale.size,
 		resize = resize,
 		parentResizeCallback = nil,
+		zoom = upscale.zoom or 1,
+		zoomBy = zoomBy,
+		look = upscale.look or { x = upscale.size.width / 2, y = upscale.size.height / 2 },
+		lookBy = lookBy,
+		parentToRigsWorld = parentToRigsWorld,
+		parentToRigsScreen = parentToRigsScreen,
 	}
 	return newRig
 end
