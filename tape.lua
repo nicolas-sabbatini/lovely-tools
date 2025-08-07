@@ -8,7 +8,7 @@
 --- @author Nicolas Sabbatini
 --- @copyright 2025, Nicolas Sabbatini
 --- @license MIT License
---- @version 1.0.1
+--- @version 1.1.0
 
 local logFile = "log.log"
 local logLevel = 3
@@ -55,7 +55,7 @@ local colors = {
 Tape = {
 	_LICENSE = "MIT License - Copyright (c) 2024",
 	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
-	_VERSION = "v1.0.1",
+	_VERSION = "v1.1.0",
 }
 
 --- Records any number of arguments to the currently configured output.

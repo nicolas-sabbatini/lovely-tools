@@ -15,12 +15,10 @@ in my game dev journey. I hope you find something useful here. Enjoy! ♥
 
 #### About
 
-A simple keyboard library for the Löve 2D game engine that can be used to check
-the state of a key (just pressed, just released or held down). The library
-doesn't use the `love.keypressed` and `love.keyreleased` callbacks, so you can
-have control over the input.
+A lightweight and simple input tracking helper for Love2D that tracks keyboard
+and mouse states, including "just pressed" and "just released" events.
 
-- Version: 3.0.1
+- Version: 4.0.0
 - Status: finish
 
 #### Roadmap

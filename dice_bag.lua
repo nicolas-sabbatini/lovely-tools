@@ -31,14 +31,15 @@ local dice_bag = {}
 --- This function simulates rolling a custom dice with a given range and optional bonus.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+--- `throws` error If the amount of dice is less than 1.
+--- `throws` error If the max value is less than the min value.
+---
 ---@param min number The minimum possible value of the dice (inclusive).
 ---@param max number The maximum possible value of the dice (inclusive).
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
----@throws error If the max value is less than the min value.
 function dice_bag.unknownDice(min, max, bonus, amount)
 	local b = bonus or 0
 	local a = amount or 1
@@ -59,11 +60,12 @@ end
 --- This function rolls four-sided dice with optional bonuses added to each roll.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+--- `throws` error If the amount of dice is less than 1.
+---
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
 function dice_bag.d4(bonus, amount)
 	return dice_bag.unknownDice(1, 4, bonus, amount)
 end
@@ -73,11 +75,12 @@ end
 --- This function rolls six-sided dice with optional bonuses added to each roll.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+--- `throws` error If the amount of dice is less than 1.
+---
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
 function dice_bag.d6(bonus, amount)
 	return dice_bag.unknownDice(1, 6, bonus, amount)
 end
@@ -87,11 +90,12 @@ end
 --- This function rolls eight-sided dice with optional bonuses added to each roll.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+--- `throws` error If the amount of dice is less than 1.
+---
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
 function dice_bag.d8(bonus, amount)
 	return dice_bag.unknownDice(1, 8, bonus, amount)
 end
@@ -101,11 +105,12 @@ end
 --- This function rolls ten-sided dice with optional bonuses added to each roll.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+---`throws` error If the amount of dice is less than 1.
+---
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
 function dice_bag.d10(bonus, amount)
 	return dice_bag.unknownDice(1, 10, bonus, amount)
 end
@@ -115,11 +120,12 @@ end
 --- This function rolls twelve-sided dice with optional bonuses added to each roll.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+--- `throws` error If the amount of dice is less than 1.
+---
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
 function dice_bag.d12(bonus, amount)
 	return dice_bag.unknownDice(1, 12, bonus, amount)
 end
@@ -129,11 +135,12 @@ end
 --- This function rolls twenty-sided dice with optional bonuses added to each roll.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+--- `throws` error If the amount of dice is less than 1.
+---
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
 function dice_bag.d20(bonus, amount)
 	return dice_bag.unknownDice(1, 20, bonus, amount)
 end
@@ -143,11 +150,12 @@ end
 --- This function rolls one hundred sided dice with optional bonuses added to each roll.
 --- It returns the total sum of all rolls and a list of each individual roll result.
 ---
+--- `throws` error If the amount of dice is less than 1.
+---
 ---@param bonus number? An optional bonus added to each roll. Defaults to 0 if not provided.
 ---@param amount number? The number of dice to roll. Defaults to 1 if not provided.
 ---@return number total The total sum of all rolls including bonuses.
 ---@return number[] rolls A list containing the result of each individual dice roll with bonuses applied.
----@throws error If the amount of dice is less than 1.
 function dice_bag.d100(bonus, amount)
 	return dice_bag.unknownDice(1, 100, bonus, amount)
 end

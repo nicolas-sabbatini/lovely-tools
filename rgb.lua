@@ -24,22 +24,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 --]]
 
+---@class RGB
 local RGB = {
 	_LICENSE = "MIT License - Copyright (c) 2024",
 	_URL = "https://github.com/nicolas-sabbatini/lovely-tools",
-	_VERSION = "v0.2.1",
+	_VERSION = "v0.2.2",
 }
 
 ---Transform a number in `0xRRGGBB` format to a table RGB with values between 0..1
----@param num number | string `RRGGBB` number, if a string is used it must not have the `0x` prefix
+---@param num number | string `RRGGBB` number, if a string is used it must not have the `0x` or `#` prefix
 ---@return table RGB on format `{1: number, 2: number, 3: number}` each number on value between 0..1
 function RGB.exaToTable(num)
 	assert(type(num) == "number" or type("num") == "string", "The number must be a type `string` or `number`")
 	if type(num) == "number" then
-		num = string.format("%X", num)
-	end
-	while #num < 6 do
-		num = "0" .. num
+		num = string.format("%06X", num)
 	end
 	local r = tonumber(string.sub(num, 1, 2) or "00", 16) / 0xFF
 	local g = tonumber(string.sub(num, 3, 4) or "00", 16) / 0xFF
@@ -48,15 +46,12 @@ function RGB.exaToTable(num)
 end
 
 ---Transform a number in `0xRRGGBBAA` format to a table RGBA with values between 0..1
----@param num number | string `RRGGBB` number, if a string is used it must not have the `0x` prefix
+---@param num number | string `RRGGBB` number, if a string is used it must not have the `0x` or `#` prefix
 ---@return table RGBA on format `{1: number, 2: number, 3: number, 4: number}` each number on value between 0..1
 function RGB.alphaExaToTable(num)
 	assert(type(num) == "number" or type("num") == "string", "The number must be a type `string` or `number`")
 	if type(num) == "number" then
-		num = string.format("%X", num)
-	end
-	while #num < 8 do
-		num = "0" .. num
+		num = string.format("%08X", num)
 	end
 	local r = tonumber(string.sub(num, 1, 2) or "00", 16) / 0xFF
 	local g = tonumber(string.sub(num, 3, 4) or "00", 16) / 0xFF
