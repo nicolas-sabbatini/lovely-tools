@@ -6,6 +6,14 @@ in my game dev journey. I hope you find something useful here. Enjoy! ♥
 
 > All the libs that you can find in here have EmmyLua Annotations
 
+## TODOS:
+
+- [ ] Dice bag
+- [ ] Pizza
+- [ ] Kiss UI
+- [ ] RGB
+- [ ] Documentation
+
 ## Contents:
 
 ### Simple Keyboard
@@ -67,7 +75,3 @@ A simple state manager for games.
 #### Roadmap
 
 - [] Add function priority
-
-## Documentation
-
-- TODO
