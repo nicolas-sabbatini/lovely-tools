@@ -366,12 +366,12 @@ local function calculate_positions(component, origin_x, origin_y, mouse_x, mouse
 	component.position.x = origin_x
 	component.position.y = origin_y
 
-	if component.update then
-		component.is_hover = mouse_x >= origin_x
-			and mouse_x <= component.size.width + origin_x
-			and mouse_y >= origin_y
-			and mouse_y <= component.size.height + origin_y
+	component.is_hover = mouse_x >= origin_x
+		and mouse_x <= component.size.width + origin_x
+		and mouse_y >= origin_y
+		and mouse_y <= component.size.height + origin_y
 
+	if component.update then
 		component:update(mouse_x, mouse_y)
 	end
 
